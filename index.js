@@ -19,7 +19,7 @@ class Shim {
   compile(file) {
     const shimmed = this.config.shimmed || [];
     const path = file.path;
-
+    console.log(file.path);
     const shimDefinition = _.find(shimmed, shim => path.match(shim.match));
 
     if (shimDefinition) {
