@@ -1,0 +1,25 @@
+{
+  "name": "shim-brunch",
+  "version": "0.0.1",
+  "description": "Adds shim support to brunch.",
+  "author": "Sia.S.Saj",
+  "homepage": "https://github.com/siassaj/shim-brunch"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:siassaj/shim-brunch.git"
+  },
+  "scripts": {
+    "test": "eslint index.js && mocha"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^3",
+    "eslint": "^3.12.2",
+    "mocha": "^3",
+    "eslint-config-brunch": "brunch/eslint-config-brunch"
+  },
+  "eslintConfig": {
+    "extends": "brunch"
+  }
+}
