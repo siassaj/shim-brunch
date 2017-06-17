@@ -1,6 +1,15 @@
 'use strict';
 
-const _ = require("lodash");
+const _ = require('lodash');
+
+const fetch = function(thing) {
+  if (_.isFunction(thing)) {
+    return thing();
+  } else if (thing) {
+    return thing;
+  }
+  return [];
+};
 
 class Shim {
   constructor(config) {
@@ -8,23 +17,30 @@ class Shim {
   }
 
   compile(file) {
-    let shimmed = this.config.shimmed || {};
-    let path = file.path;
-    if (shimmed.hasOwnProperty(path)) {
-      let definition = shimmed[path];
+    const shimmed = this.config.shimmed || {};
+    const path = file.path;
 
-      let imports = definition["imports"] || [];
-      let exports = definition["exports"] || [];
+    const definition = _.find(shimmed, shim => {
+      if (_.isRegExp(shim.match)) {
+        return path.match(shim.match);
+      }
+      return path.match === shim.match;
+    });
 
-      file.data = `
+
+    const imports = fetch(definition.imports);
+    const exports = fetch(definition.exports);
+
+    file.data = `
 require.define({${path}: function(exports, require, module) {
-  ${_.join(imports, ";\n")}
+  ${_.join(imports, ';\n')}
 
   ${file.data}
 
-  ${_.join(exports, ";\n")}
+  ${_.join(exports, ';\n')}
 }});\n\n`;
-    }
+
+    return Promise.resolve(file);
   }
 }
 
