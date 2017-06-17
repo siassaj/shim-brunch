@@ -17,30 +17,24 @@ class Shim {
   }
 
   compile(file) {
-    const shimmed = this.config.shimmed || {};
+    const shimmed = this.config.shimmed || [];
     const path = file.path;
 
-    console.log(file.path);
-    const definition = _.find(shimmed, shim => {
-      console.log(shimmed.match);
-      if (_.isRegExp(shim.match)) {
-        return path.match(shim.match);
-      }
-      return path.match === shim.match;
-    });
+    const shimDefinition = _.find(shimmed, shim => path.match(shim.match));
 
+    if (shimDefinition) {
+      const imports = fetch(shimDefinition.imports);
+      const exports = fetch(shimDefinition.exports);
 
-    const imports = fetch(definition.imports);
-    const exports = fetch(definition.exports);
-
-    file.data = `
-require.define({${path}: function(exports, require, module) {
+      file.data = `
+require.define({'${path}': function(exports, require, module) {
   ${_.join(imports, ';\n')}
 
   ${file.data}
 
   ${_.join(exports, ';\n')}
 }});\n\n`;
+    }
 
     return Promise.resolve(file);
   }

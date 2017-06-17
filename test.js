@@ -2,12 +2,10 @@
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-const chaiString = require('chai-string');
 const expect = chai.expect;
 const Plugin = require('.');
 
 chai.use(chaiAsPromised);
-chai.use(chaiString);
 
 const fileData = `
 ;(function ($) {
@@ -28,14 +26,14 @@ describe('Plugin', () => {
 
   beforeEach(() => {
     file = {
-      path: "node_modules/legacyThing/src/jquery.legacyThing.js",
+      path: "legacyThing/src/jquery.legacyThing.js",
       data: fileData
     };
     plugin = new Plugin({
       plugins: {
         shim: {
-          shimmed: {
-            match: 'node_modules/legacyThing/src/jquery.legacyThing.js',
+          shimmed: [{
+            match: 'legacyThing/src/jquery.legacyThing.js',
             imports: [
               'window = {}',
               "window.jQuery = require('jquery')",
@@ -46,7 +44,7 @@ describe('Plugin', () => {
                 'module.exports = {default: legacyThing}'
               ];
             }
-          }
+          }]
         }
       }
     });
@@ -62,7 +60,11 @@ describe('Plugin', () => {
 
   it('#compile resolves a file', () => {
     const shimmed =
-`require.define({node_modules/legacyThing/src/jquery.legacyThing.js: function(exports, require, module) {
+`
+require.define({'legacyThing/src/jquery.legacyThing.js': function(exports, require, module) {
+  window = {};
+window.jQuery = require('jquery')
+
 
 ;(function ($) {
 
@@ -76,9 +78,15 @@ describe('Plugin', () => {
 
 }(window.jQuery));
 
-}});`.replace(/\s/g, "");
+
+  let legacyThing = window.legacyThing;
+module.exports = {default: legacyThing}
+}});
+
+`.replace(/\s/g, "");
 
     const data = plugin.compile(file).then(file => file.data.replace(/\s/g, ""));
+
     return expect(data).to.eventually.equal(shimmed);
   });
 
