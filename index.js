@@ -20,7 +20,9 @@ class Shim {
     const shimmed = this.config.shimmed || {};
     const path = file.path;
 
+    console.log(file.path);
     const definition = _.find(shimmed, shim => {
+      console.log(shimmed.match);
       if (_.isRegExp(shim.match)) {
         return path.match(shim.match);
       }
