@@ -61,10 +61,8 @@ describe('Plugin', () => {
   it('#compile resolves a file', () => {
     const shimmed =
 `
-require.define({'legacyThing/src/jquery.legacyThing.js': function(exports, require, module) {
-  window = {};
-window.jQuery = require('jquery')
-
+window = {};
+window.jQuery = require('jquery');
 
 ;(function ($) {
 
@@ -78,11 +76,8 @@ window.jQuery = require('jquery')
 
 }(window.jQuery));
 
-
-  let legacyThing = window.legacyThing;
-module.exports = {default: legacyThing}
-}});
-
+let legacyThing = window.legacyThing;
+module.exports = {default: legacyThing};
 `.replace(/\s/g, "");
 
     const data = plugin.compile(file).then(file => file.data.replace(/\s/g, ""));

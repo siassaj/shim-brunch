@@ -19,21 +19,23 @@ class Shim {
   compile(file) {
     const shimmed = this.config.shimmed || [];
     const path = file.path;
-    console.log(file.path);
+
     const shimDefinition = _.find(shimmed, shim => path.match(shim.match));
 
     if (shimDefinition) {
       const imports = fetch(shimDefinition.imports);
       const exports = fetch(shimDefinition.exports);
+      const joinedImports = _.join(_.map(imports, imp => `${imp};`), '\n');
+      const joinedExports = _.join(_.map(exports, exp => `${exp};`), '\n');
 
       file.data = `
-require.define({'${path}': function(exports, require, module) {
-  ${_.join(imports, ';\n')}
+${joinedImports}
 
-  ${file.data}
+${file.data}
 
-  ${_.join(exports, ';\n')}
-}});\n\n`;
+${joinedExports}
+\n\n
+`;
     }
 
     return Promise.resolve(file);
@@ -41,6 +43,7 @@ require.define({'${path}': function(exports, require, module) {
 }
 
 Shim.prototype.brunchPlugin = true;
+Shim.prototype.type = 'javascript';
 Shim.prototype.extension = 'js';
 Shim.prototype.pattern = /\.js$/;
 
